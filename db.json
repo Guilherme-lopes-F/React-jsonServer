@@ -1,0 +1,21 @@
+{
+    "usuarios": [{
+            "id": 1,
+            "nome": "João Guilherme",
+            "email": "joao@gmail.com",
+            "telefone": "(81)988888888"
+        },
+        {
+            "id": 2,
+            "nome": "Pedro Henrique",
+            "email": "pedro@gmail.com",
+            "telefone": "(81)977777777"
+        },
+                {
+            "id": 3,
+            "nome": "Artur Tomé",
+            "email": "tome@gmail.com",
+            "telefone": "(81)966666666"
+        }
+    ]
+}
