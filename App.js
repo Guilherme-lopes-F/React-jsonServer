@@ -1,8 +1,10 @@
 import { NavigationContainer } from '@react-navigation/native';
+import { useState, useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Button } from 'react-native-web';
-
+import axios from 'axios';
+const   FAKE = 'http://localhost:3000/contatos';
 
 
 function LoginScreen({ navigation }) {
@@ -90,73 +92,61 @@ function CadastrarScreen({ navigation }) {
   );
 }
 function ContatoScreen({ navigation }) {
+    const[contatos,setContatos] = useState([]);
+
+    useEffect(()=>{
+        carregar();
+    },[]);
+
+    function carregar(){
+        axios.get(FAKE)
+        .then(function(response){
+            setContatos(response.data);
+        })
+        .catch(function(error){
+            console.log(error);
+        });
+
+    }
   return (
     <ScrollView >
-      <View style={{ flexDirection: 'row' }}>
+    {contatos.map((item) =>(
+        <View key={item.id} style={{ flexDirection: 'row' }}>
         <Image
           style={{ width: 80, height: 80 }}
           source={{
             uri: 'https://cdn-icons-png.flaticon.com/512/6388/6388307.png'
           }}
         />
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Contato Detalhado', {
-            nome: 'João Guilherme',
-            email: 'joao@gmail.com',
-            telefone: '(81)988888888',
-
-          })}>
-          <View style={{ marginTop: 20 }}>
-            <Text style={{ fontWeight: 'bold' }}> João Guilherme</Text>
-            <Text style={{ fontWeight: 'bold' }}> Celular: (81)988888888</Text>
-          </View>
+        <TouchableOpacity onPress={()=> navigation.navigate('Contato Detalhado', item)}>
+            <View style={{marginTop:20}}>
+                <Text style={{fontWeight:'bold'}}>{item.nome}</Text>
+                <Text style={{fontWeight:'bold'}}>Celular: {item.telefone}</Text>
+            </View>
         </TouchableOpacity>
-      </View>
-
-      <View style={{ flexDirection: 'row' }}>
-        <Image
-          style={{ width: 80, height: 80 }}
-          source={{
-            uri: 'https://cdn-icons-png.flaticon.com/512/6388/6388307.png'
-          }}
-        />
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Contato Detalhado', {
-            nome: 'Pedro Henrique',
-            email: 'pedro@gmail.com',
-            telefone: '(81)977777777',
-
-          })}>
-          <View style={{ marginTop: 20 }}>
-            <Text style={{ fontWeight: 'bold' }}> Pedro Henrique</Text>
-            <Text style={{ fontWeight: 'bold' }}> Celular: (81)977777777</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-      <View style={{ flexDirection: 'row' }} >
-        <Image
-          style={{ width: 80, height: 80 }}
-          source={{
-            uri: 'https://cdn-icons-png.flaticon.com/512/6388/6388307.png'
-          }}
-        />
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Contato Detalhado', {
-            nome: 'Artur Tomé',
-            email: 'tome@gmail.com',
-            telefone: '(81)966666666',
-
-          })}>
-          <View style={{ marginTop: 20 }}>
-            <Text style={{ fontWeight: 'bold' }}> Artur Tomé</Text>
-            <Text style={{ fontWeight: 'bold' }}> Celular: (81)966666666</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
+        </View>
+    ))}
     </ScrollView>
   );
 }
 function cadascontScreen({ navigation }) {
+    const [nome, setNome] = useState('');
+    const [email, setEmail] = useState('');
+    const [telefone, setTelefone] = useState('');
+
+    function cadastro(){
+        axios.post(FAKE,{
+            nome: nome,
+            email: email,
+            telefone: telefone
+        })
+        .then(function(){
+            navigation.goBack();
+        })
+        .catch(function (error){
+            console.log(error);
+        })
+    }
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f5dec5' }}>
       <Text style={styles.texto} >
@@ -165,7 +155,7 @@ function cadascontScreen({ navigation }) {
       </Text>
       <TextInput style={styles.input}
         placeholder='Digite Nome'
-        keyboardType='text'
+        onChangeText={setNome}
       />
       <Text style={styles.texto} >
 
@@ -174,7 +164,7 @@ function cadascontScreen({ navigation }) {
       </Text>
       <TextInput style={styles.input}
         placeholder='Digite seu Email'
-        keyboardType='text'
+        onChangeText={setEmail}
       />
 
       <Text style={styles.texto} >
@@ -184,13 +174,13 @@ function cadascontScreen({ navigation }) {
       <TextInput style={styles.input}
         placeholder='Digite seu telefone'
         keyboardType='numeric'
-        secureTextEntry
+        onChangeText={setTelefone}
       />
       <View style={{ width: 300, marginTop: 10 }} >
         <Button
           title="Cadastrar"
           color='#0063c0'
-          onPress={() => alert('cadastro feito')}
+          onPress={cadastro}
         />
       </View>
     </View>
@@ -210,7 +200,7 @@ function App() {
           }} />
 
         <stack.Screen name='Cadastro' component={CadastrarScreen}
-          options={{
+          options={({navigation}) => ({
             title: 'Contatos',
             headerTitleAlign: 'center',
             headerStyle: {
@@ -218,10 +208,11 @@ function App() {
             },
             headerRight: () => (
               <Button
-                onPress={() => navigation.navigate('login')}
+                title='Voltar'
+                onPress={() => navigation.goBack()}
               />
             ),
-          }} />
+          })} />
         <stack.Screen name='Contatos' component={ContatoScreen}
           options={({ navigation }) => ({
             title: 'Contatos',
@@ -250,8 +241,39 @@ function App() {
     </NavigationContainer>
   );
 }
-function ContatoDetalhado({ route }) {
-  const { nome, email, telefone } = route.params;
+function ContatoDetalhado({ route, navigation }) {
+const { id } = route.params;
+
+const [nome, setNome] = useState(route.params.nome);
+const [email, setEmail] = useState(route.params.email);
+const [telefone, setTelefone] = useState(route.params.telefone);
+
+  function alterar() {
+    axios.put(FAKE + '/' + id,{
+        nome: nome,
+        email: email,
+        telefone: telefone
+    })
+    .then(function (response){
+        console.log(response);
+        navigation.goBack();
+    })
+    .catch(function (error){
+        console.log(error);
+    });
+  }
+
+  function deletar() {
+    axios.delete(FAKE + '/' + id)
+
+    .then(function (response){
+        console.log(response);
+        navigation.goBack();
+    })
+    .catch(function (error){
+        console.log(error);
+    });
+  }
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f5dec5' }}>
@@ -259,31 +281,31 @@ function ContatoDetalhado({ route }) {
       <TextInput
         style={styles.input}
         value={nome}
-        editable={false}
+        onChangeText={setNome}
       />
       <TextInput
         style={styles.input}
         value={email}
-        editable={false}
+        onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
         value={telefone}
-        editable={false}
+        onChangeText={setTelefone}
       />
 
       <View style={{ width: 300, marginTop: 10 }} >
         <Button
           title="Alterar"
           color='#0063c0'
-          onPress={() => alert('Alteração feita')}
+          onPress={alterar}
         />
       </View>
       <View style={{ width: 300, marginTop: 10 }} >
         <Button
           title="Excluir"
           color='#ff0000'
-          onPress={() => alert('Exclusão feita')}
+          onPress={deletar}
         />
       </View>
     </View>
