@@ -1,13 +1,39 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { useState, useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { Button } from 'react-native-web';
 import axios from 'axios';
-const   FAKE = 'http://localhost:3000/contatos';
+import { useEffect, useState, } from 'react';
+import { Button, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+const FAKE = 'http://10.0.0.100:8081/contatos';
+const FAKE_USUARIOS = 'http://10.0.0.100:8081/usuarios';
+
+
 
 
 function LoginScreen({ navigation }) {
+ 
+const [login, setLogin] = useState('');
+const [senha, setSenha] = useState('');
+
+
+//verfica se a senha e o login estai corretas
+function validarLogin(){
+  axios.get(FAKE_USUARIOS)
+  .then(function(response){
+    const usuarios = response.data;
+    const usuarioValidado= usuarios.find(
+      a => a.login === login && a.senha === senha
+    );
+    if (usuarioValidado){
+      alert("Bem vindo ao sitema!");
+      navigation.navigate('Contatos');
+    }else{
+      alert("Loginou senha incorretos");
+    }
+  })
+  .catch(function(error){
+    console.log(error);
+  });
+}
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f5dec5' }}>
       <Image
@@ -17,25 +43,35 @@ function LoginScreen({ navigation }) {
         }}
       />
 
+
       <Text style={styles.texto} >
+
 
         Login
       </Text>
       <TextInput style={styles.input}
         placeholder='Digite login'
         keyboardType='text'
+        onChangeText={setLogin}
+        value={login}
       />
       <Text style={styles.texto} >
+
 
         Senha
       </Text>
       <TextInput style={styles.input}
         placeholder='Digite sua senha'
-        keyboardType='numeric'
-        secureTextEntry
+        secureTextEntry = {true}
+        onChangeText={setSenha}
+        value={senha}
       />
       <View style={{ width: 300, marginBottom: 20 }}>
-        <Button title='login' onPress={() => navigation.navigate('Contatos')} />
+        <Button
+      title='login'
+      onPress={validarLogin}
+/>
+         
       </View>
       <View style={{ width: 300 }}>
         <Button title='Cadastre-se' onPress={() => navigation.navigate('Cadastro')} />
@@ -44,48 +80,86 @@ function LoginScreen({ navigation }) {
   );
 }
 function CadastrarScreen({ navigation }) {
+  const [nome, setNome] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [login, setLogin] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f5dec5' }}>
       <Text style={styles.texto} >
+
 
         Nome
       </Text>
       <TextInput style={styles.input}
         placeholder='Digite Nome'
         keyboardType='text'
+        onChangeText={setNome}
+        value={nome}
       />
       <Text style={styles.texto} >
+
 
         CPF
       </Text>
       <TextInput style={styles.input}
         placeholder='Digite CPF'
         keyboardType='text'
+        onChangeText={setCpf}
+        value={cpf}
       />
 
+
       <Text style={styles.texto} >
+
 
         Email
       </Text>
       <TextInput style={styles.input}
         placeholder='Digite seu Email'
         keyboardType='text'
+        onChangeText={setEmail}
+        value={email}
+      />
+      
+      <Text style={styles.texto} >
+        Login
+        </Text>
+
+        <TextInput style={styles.input}
+        placeholder='Digite seu login'
+        onChangeText={setLogin}
+        value={login}
       />
 
+
       <Text style={styles.texto} >
+
 
         Senha
       </Text>
       <TextInput style={styles.input}
         placeholder='Digite sua senha'
-        keyboardType='numeric'
-        secureTextEntry
+        secureTextEntry = {true}
+        onChangeText={setSenha}
+        value={senha}
       />
       <View style={{ width: 300, marginTop: 10 }} >
         <Button
           title="Cadastrar"
           color='#0063c0'
-          onPress={() => alert('cadastro feito')}
+          onPress={() => {
+            axios.post(FAKE_USUARIOS, {nome,email,login,senha})
+            .then(() => {
+              alert('cadastro realizado!');
+              navigation.goBack();
+            })
+            .catch(err => {console.log(err)
+            alert("erro ao cadastrar")
+            })
+          }}
         />
       </View>
     </View>
@@ -94,9 +168,11 @@ function CadastrarScreen({ navigation }) {
 function ContatoScreen({ navigation }) {
     const[contatos,setContatos] = useState([]);
 
+
     useEffect(()=>{
         carregar();
     },[]);
+
 
     function carregar(){
         axios.get(FAKE)
@@ -106,6 +182,7 @@ function ContatoScreen({ navigation }) {
         .catch(function(error){
             console.log(error);
         });
+
 
     }
   return (
@@ -133,12 +210,14 @@ function cadascontScreen({ navigation }) {
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [telefone, setTelefone] = useState('');
+    const [senha, setSenha] = useState('');
+
 
     function cadastro(){
         axios.post(FAKE,{
             nome: nome,
             email: email,
-            telefone: telefone
+            telefone: telefone,
         })
         .then(function(){
             navigation.goBack();
@@ -151,6 +230,7 @@ function cadascontScreen({ navigation }) {
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f5dec5' }}>
       <Text style={styles.texto} >
 
+
         Nome
       </Text>
       <TextInput style={styles.input}
@@ -160,6 +240,8 @@ function cadascontScreen({ navigation }) {
       <Text style={styles.texto} >
 
 
+
+
         Email
       </Text>
       <TextInput style={styles.input}
@@ -167,7 +249,9 @@ function cadascontScreen({ navigation }) {
         onChangeText={setEmail}
       />
 
+
       <Text style={styles.texto} >
+
 
         Telefone
       </Text>
@@ -175,6 +259,17 @@ function cadascontScreen({ navigation }) {
         placeholder='Digite seu telefone'
         keyboardType='numeric'
         onChangeText={setTelefone}
+      />
+      <Text style={styles.texto} >
+
+
+
+
+        Senha
+      </Text>
+      <TextInput style={styles.input}
+        placeholder='Digite sua senha'
+        onChangeText={setSenha}
       />
       <View style={{ width: 300, marginTop: 10 }} >
         <Button
@@ -187,19 +282,22 @@ function cadascontScreen({ navigation }) {
   );
 }
 
-const stack = createNativeStackNavigator();
+
+const Stack = createNativeStackNavigator();
+
 
 function App() {
   return (
     <NavigationContainer>
-      <stack.Navigator>
-        <stack.Screen name='login' component={LoginScreen}
+      <Stack.Navigator>
+        <Stack.Screen name='login' component={LoginScreen}
           options={{
             title: 'login',
             headerTitleAlign: 'center',
           }} />
 
-        <stack.Screen name='Cadastro' component={CadastrarScreen}
+
+        <Stack.Screen name='Cadastro' component={CadastrarScreen}
           options={({navigation}) => ({
             title: 'Contatos',
             headerTitleAlign: 'center',
@@ -213,7 +311,7 @@ function App() {
               />
             ),
           })} />
-        <stack.Screen name='Contatos' component={ContatoScreen}
+        <Stack.Screen name='Contatos' component={ContatoScreen}
           options={({ navigation }) => ({
             title: 'Contatos',
             headerTitleAlign: 'center',
@@ -227,8 +325,8 @@ function App() {
               />
             ),
           })} />
-        <stack.Screen name='Cadastro de contatos' component={cadascontScreen}></stack.Screen>
-        <stack.Screen name='Contato Detalhado' component={ContatoDetalhado}
+        <Stack.Screen name='Cadastro de contatos' component={cadascontScreen}></Stack.Screen>
+        <Stack.Screen name='Contato Detalhado' component={ContatoDetalhado}
           options={{
             title: 'ContatoDetalhado',
             headerTitleAlign: 'center',
@@ -236,17 +334,19 @@ function App() {
               backgroundColor: '#4873ff'
             },
           }}
-        ></stack.Screen>
-      </stack.Navigator>
+        ></Stack.Screen>
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
 function ContatoDetalhado({ route, navigation }) {
 const { id } = route.params;
 
+
 const [nome, setNome] = useState(route.params.nome);
 const [email, setEmail] = useState(route.params.email);
 const [telefone, setTelefone] = useState(route.params.telefone);
+
 
   function alterar() {
     axios.put(FAKE + '/' + id,{
@@ -263,8 +363,10 @@ const [telefone, setTelefone] = useState(route.params.telefone);
     });
   }
 
+
   function deletar() {
     axios.delete(FAKE + '/' + id)
+
 
     .then(function (response){
         console.log(response);
@@ -275,8 +377,10 @@ const [telefone, setTelefone] = useState(route.params.telefone);
     });
   }
 
+
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f5dec5' }}>
+
 
       <TextInput
         style={styles.input}
@@ -293,6 +397,7 @@ const [telefone, setTelefone] = useState(route.params.telefone);
         value={telefone}
         onChangeText={setTelefone}
       />
+
 
       <View style={{ width: 300, marginTop: 10 }} >
         <Button
@@ -314,6 +419,8 @@ const [telefone, setTelefone] = useState(route.params.telefone);
 export default App;
 
 
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -324,6 +431,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 100,
     height: 100,
+
 
   },
   input: {
@@ -340,3 +448,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
 });
+
+
+
