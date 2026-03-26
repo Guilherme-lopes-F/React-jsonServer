@@ -1,21 +1,42 @@
 {
-    "contatos": [{
-            "id": 1,
-            "nome": "João Guilherme",
-            "email": "joao@gmail.com",
-            "telefone": "(81)988888888"
-        },
-        {
-            "id": 2,
-            "nome": "Pedro Henrique",
-            "email": "pedro@gmail.com",
-            "telefone": "(81)977777777"
-        },
-                {
-            "id": 3,
-            "nome": "Artur Tomé",
-            "email": "tome@gmail.com",
-            "telefone": "(81)966666666"
-        }
-    ]
+  "contatos": [
+    {
+      "id": "1",
+      "nome": "João Guilherme",
+      "email": "joao@gmail.com",
+      "telefone": "(81)988888888"
+    },
+    {
+      "id": "2",
+      "nome": "Pedro Henrique",
+      "email": "pedro@gmail.com",
+      "telefone": "(81)977777777"
+    },
+    {
+      "nome": "Artur Tobey",
+      "email": "tome@gmail.com",
+      "telefone": "(81)966666666",
+      "id": "3"
+    }
+  ],
+  "usuarios": [
+    {
+      "id": "1",
+      "login": "joao",
+      "senha": "12345"
+    },
+    {
+      "id": "2",
+      "login": "pedro",
+      "senha": "54321"
+    },
+    {
+      "id": "2d6e",
+      "nome": "Kaio G.",
+      "email": "kaiog@gmail.com",
+      "login": "KaioG",
+      "senha": "0987654321"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }
