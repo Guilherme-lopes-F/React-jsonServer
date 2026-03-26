@@ -299,7 +299,7 @@ function App() {
 
         <Stack.Screen name='Cadastro' component={CadastrarScreen}
           options={({navigation}) => ({
-            title: 'Contatos',
+            title: 'Cadastrar usuário',
             headerTitleAlign: 'center',
             headerStyle: {
               backgroundColor: '#4873ff'
